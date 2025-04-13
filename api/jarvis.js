@@ -18,7 +18,6 @@ const CHILD_VOICES = {
 };
 
 // Imported for real-time voice enhancement
-import vad from 'node-vad';
 
 export default async function handler(req, res) {
   const { mode, query, name = 'Unknown' } = req.body;
