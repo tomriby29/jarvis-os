@@ -1,0 +1,20 @@
+[
+  {
+    "path": "/api/hooks/social",
+    "schedule": "@weekly",
+    "method": "POST",
+    "body": {
+      "mode": "week-summary",
+      "name": "Tom"
+    }
+  },
+  {
+    "path": "/api/hooks/social",
+    "schedule": "0 7 * * *",
+    "method": "POST",
+    "body": {
+      "mode": "birthday-check",
+      "name": "Jarvis"
+    }
+  }
+]
