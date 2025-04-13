@@ -114,7 +114,11 @@ export default async function handler(req, res) {
       });
 
       const audioFile = data.files.audio;
-      const audioStream = fs.createReadStream(audioFile.filepath);
+if (!audioFile || !audioFile.filepath) {
+  return res.status(400).json({ message: 'No audio file uploaded.' });
+}
+
+const audioStream = fs.createReadStream(audioFile.filepath);
 
       const formData = new FormData();
       formData.append('file', audioStream, 'audio.webm');
