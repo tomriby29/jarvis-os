@@ -33,7 +33,7 @@ export default function Home() {
     mediaRecorder.onstop = async () => {
       const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
       const formData = new FormData();
-      formData.append('audio', audioBlob);
+      formData.append('audio', audioBlob,'recording.webm');
 
       setLoading(true);
       const res = await fetch('/api/jarvis', {
