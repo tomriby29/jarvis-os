@@ -10,7 +10,7 @@ export default function Home() {
     const query = inputRef.current.value;
     if (!query) return;
     setLoading(true);
-    const res = await fetch('/api/jarvis.js', {
+    const res = await fetch('/api/jarvis', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ query })
