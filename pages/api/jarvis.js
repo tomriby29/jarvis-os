@@ -128,9 +128,3 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'Jarvis internal failure' });
   }
 }
-
-  } catch (err) {
-    console.error('Jarvis handler failed:', err);
-    return res.status(500).json({ error: 'Jarvis internal failure' });
-  }
-}
