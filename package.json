@@ -10,5 +10,6 @@
     "next": "latest",
     "react": "latest",
     "react-dom": "latest"
+    "@notionhq/client": "^2.2.1"
   }
 }
