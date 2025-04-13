@@ -1,22 +1,21 @@
-// Jarvis API Handler – Unified GPT-Powered Intent Routing
+// Jarvis API Handler – Unified GPT-Powered Intent Routing with Notion Memory
 
-const fs = require('fs');
-const path = require('path');
+import { Client } from '@notionhq/client';
+
+const notion = new Client({ auth: process.env.NOTION_API_KEY });
+const NOTION_MEMORY_DB_ID = process.env.NOTION_MEMORY_DB_ID;
+
 const USER_ROLES = {
   Tom: 'admin',
   Oliver: 'child',
   Alex: 'child'
 };
 
-const memoryPath = path.join(__dirname, 'memory.json');
-if (!fs.existsSync(memoryPath)) fs.writeFileSync(memoryPath, JSON.stringify([]));
-
 export default async function handler(req, res) {
   const { query = '', name = 'Unknown', payload = {} } = req.body;
   const role = USER_ROLES[name] || 'guest';
 
   try {
-    // STEP 1: Use GPT to classify intent
     const intentCheck = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -34,7 +33,6 @@ export default async function handler(req, res) {
     const intentResult = await intentCheck.json();
     const mode = intentResult.choices?.[0]?.message?.content?.trim().toLowerCase() || 'general';
 
-    // Route to the right function
     switch (mode) {
       case 'news': {
         const news = await fetch(`https://gnews.io/api/v4/top-headlines?lang=en&country=de&token=${process.env.GNEWS_API_KEY}`);
@@ -71,15 +69,26 @@ export default async function handler(req, res) {
       }
 
       case 'memory-log': {
-        const existing = JSON.parse(fs.readFileSync(memoryPath));
-        existing.push({ time: Date.now(), text: query, name });
-        fs.writeFileSync(memoryPath, JSON.stringify(existing, null, 2));
-        return res.status(200).json({ reply: `Logged: "${query}"` });
+        await notion.pages.create({
+          parent: { database_id: NOTION_MEMORY_DB_ID },
+          properties: {
+            Name: { title: [{ text: { content: `${name}'s memory` } }] },
+            Query: { rich_text: [{ text: { content: query } }] },
+            Time: { date: { start: new Date().toISOString() } }
+          }
+        });
+        return res.status(200).json({ reply: `Logged to Notion: "${query}"` });
       }
 
       case 'memory-query': {
-        const memory = JSON.parse(fs.readFileSync(memoryPath));
-        const memoryText = memory.map(m => `(${new Date(m.time).toLocaleString()}) ${m.name}: ${m.text}`).join('\n');
+        const memoryPages = await notion.databases.query({ database_id: NOTION_MEMORY_DB_ID });
+        const memoryText = memoryPages.results.map(p => {
+          const props = p.properties;
+          const time = props.Time?.date?.start || 'Unknown';
+          const text = props.Query?.rich_text?.[0]?.text?.content || 'No content';
+          return `(${time}) ${text}`;
+        }).join('\n');
+
         const result = await fetch('https://api.openai.com/v1/chat/completions', {
           method: 'POST',
           headers: {
@@ -122,4 +131,3 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'Jarvis internal failure' });
   }
 }
-
