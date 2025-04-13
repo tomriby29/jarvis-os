@@ -3,6 +3,12 @@ import fs from 'fs';
 import path from 'path';
 import { Readable } from 'stream';
 import formidable from 'formidable';
+
+export const config = {
+  api: {
+    bodyParser: false,
+  },
+};
 const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
 
 export const config = {
