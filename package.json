@@ -7,6 +7,5 @@
   },
   "dependencies": {
     "node-fetch": "^3.3.2",
-    "node-vad": "^3.1.0"
   }
 }
