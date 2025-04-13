@@ -3,7 +3,7 @@ import fs from 'fs';
 import path from 'path';
 import { Readable } from 'stream';
 import formidable from 'formidable';
-import fetch from 'node-fetch';
+const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
 
 export const config = {
   api: {
